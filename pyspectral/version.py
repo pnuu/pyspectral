@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 Adam.Dybbroe
+# Copyright (c) 2013, 2015 Adam.Dybbroe
 
 # Author(s):
 
 #   Adam.Dybbroe <a000680@c14526.ad.smhi.se>
+#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,4 +24,4 @@
 """
 """
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'

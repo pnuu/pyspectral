@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014 Adam.Dybbroe
+# Copyright (c) 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
 #   Adam.Dybbroe <adam.dybbroe@smhi.se>
+#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -170,7 +171,7 @@ class RadTbConverter(object):
             scale = 1.0
 
         if not bandname and not np.any(lut):
-            raise SyntaxError('Either a band name or a lut needs ' +
+            raise SyntaxError('Either a band name or a lut needs '
                               'to be provided as input to the function call!')
 
         if lut:
