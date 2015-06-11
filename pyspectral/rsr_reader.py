@@ -49,9 +49,8 @@ class RelativeSpectralResponse(object):
     satellite imagers
     """
 
-    def __init__(self, platform, satnum, instrument):
-        self.platform = platform
-        self.satnum = satnum
+    def __init__(self, platform_name, instrument):
+        self.platform_name = platform_name
         self.instrument = instrument
         self.filename = None
         self.rsr = {}
@@ -74,17 +73,17 @@ class RelativeSpectralResponse(object):
 
         rsr_dir = options['rsr_dir']
 
-        self.filename = os.path.join(rsr_dir, 'rsr_%s_%s%s.h5' % (instrument,
-                                                                  platform,
-                                                                  satnum))
-        LOG.debug('Filename: ' + str(self.filename))
+        self.filename = os.path.join(rsr_dir, 'rsr_%s_%s.h5' % (instrument,
+                                                                platform_name))
+        LOG.debug('Filename: ', str(self.filename))
 
         if not os.path.exists(self.filename):
             raise IOError('pyspectral RSR file does not exist! Filename = ' +
                           str(self.filename) +
                           '\nFiles matching instrument and satellite ' +
                           'number: ' +
-                          str(glob(os.path.join(rsr_dir, 'rsr_%s_%s*.h5' % (instrument, platform)))))
+                          str(glob(os.path.join(rsr_dir, 'rsr_%s_%s*.h5' % \
+                                                (instrument, platform_name)))))
 
         self.load()
 
@@ -117,7 +116,8 @@ class RelativeSpectralResponse(object):
 
                     try:
                         wvl = (h5f[bandname][dname]['wavelength'][:] *
-                               h5f[bandname][dname]['wavelength'].attrs['scale'])
+                               h5f[bandname][dname][
+                                   'wavelength'].attrs['scale'])
                     except KeyError:
                         wvl = (h5f[bandname]['wavelength'][:] *
                                h5f[bandname]['wavelength'].attrs['scale'])
@@ -141,4 +141,4 @@ class RelativeSpectralResponse(object):
 if __name__ == "__main__":
     # test
 
-    modis = RelativeSpectralResponse('eos', '2', 'modis')
+    modis = RelativeSpectralResponse('EOS-Terra', 'modis')

@@ -145,10 +145,10 @@ class TestRadTbConversions(unittest.TestCase):
 
     def setUp(self):
         """Set up"""
-        self.modis = ProductionClass('eos', '2', 'modis', '20', method=1)
+        self.modis = ProductionClass('EOS-Terra', 'modis', '20', method=1)
         self.sev1 = SeviriClass(
-            'meteosat', '9', 'seviri', 'IR3.9', method=1, wavespace='wavenumber')
-        self.sev2 = ProductionClass('meteosat', '9', 'seviri', 'IR3.9',
+            'Meteosat-9', 'seviri', 'IR3.9', method=1, wavespace='wavenumber')
+        self.sev2 = ProductionClass('Meteosat-9', 'seviri', 'IR3.9',
                                     method=2)
 
     def test_rad2tb(self):
@@ -207,7 +207,7 @@ class TestRadTbConversions(unittest.TestCase):
 
     def tearDown(self):
         """Clean up"""
-
+        pass
 
 def suite():
     """The suite for test_reflectance.

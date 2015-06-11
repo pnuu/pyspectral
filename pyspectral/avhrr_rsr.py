@@ -118,21 +118,18 @@ class AvhrrRSR(object):
         self.rsr = {'wavelength': wavelength, 'response': response}
 
 
-def convert2hdf5(platform_id, sat_number):
+def convert2hdf5(platform_name):
     """Retrieve original RSR data and convert to internal hdf5 format"""
 
     import h5py
 
-    satellite_id = platform_id + str(sat_number)
-
-    avhrr = AvhrrRSR('ch1', satellite_id)
+    avhrr = AvhrrRSR('ch1', platform_name)
     filename = os.path.join(avhrr.output_dir,
-                            "rsr_avhrr_%s%d.h5" % (platform_id, sat_number))
+                            "rsr_avhrr_%s.h5" % platform_name)
 
     with h5py.File(filename, "w") as h5f:
         h5f.attrs['description'] = 'Relative Spectral Responses for AVHRR'
-        h5f.attrs['platform'] = platform_id
-        h5f.attrs['sat_number'] = sat_number
+        h5f.attrs['platform_name'] = platform_name
         h5f.attrs['band_names'] = AVHRR_BAND_NAMES
 
         for chname in AVHRR_BAND_NAMES:
@@ -152,5 +149,5 @@ def convert2hdf5(platform_id, sat_number):
 
 if __name__ == "__main__":
 
-    for noaa_number in [18, 19]:
-        convert2hdf5('noaa', noaa_number)
+    for platform_name in ["NOAA-18", "NOAA-19"]:
+        convert2hdf5(platform_name)

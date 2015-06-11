@@ -31,7 +31,8 @@ import ConfigParser
 import os
 
 CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE', None)
-if CONFIG_FILE and (not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE)):
+if CONFIG_FILE and (not os.path.exists(CONFIG_FILE) or \
+                    not os.path.isfile(CONFIG_FILE)):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 elif not CONFIG_FILE:
@@ -49,9 +50,6 @@ EPSILON = 0.01
 TB_MIN = 150.
 TB_MAX = 360.
 
-SATNAME = {'eos1': 'terra',
-           'eos2': 'aqua'}
-
 from pyspectral.radiance_tb_conversion import RadTbConverter
 
 
@@ -68,9 +66,9 @@ class Calculator(RadTbConverter):
     The relfectance calculated is without units and should be between 0 and 1.
     """
 
-    def __init__(self, platform, satnum, instrument, bandname,
+    def __init__(self, platform_name, instrument, bandname,
                  solar_flux=None, **options):
-        super(Calculator, self).__init__(platform, satnum, instrument,
+        super(Calculator, self).__init__(platform_name, instrument,
                                          bandname, method=1, **options)
 
         self.bandname = BANDNAMES.get(bandname, bandname)
@@ -80,13 +78,11 @@ class Calculator(RadTbConverter):
             try:
                 conf.read(CONFIG_FILE)
             except ConfigParser.NoSectionError:
-                LOG.warning(
-                    'Failed reading configuration file: ' + str(CONFIG_FILE))
+                LOG.warning('Failed reading configuration file: ',
+                            str(CONFIG_FILE))
 
-            satellite = platform + satnum
             options = {}
-            for option, value in conf.items(SATNAME.get(satellite, satellite) +
-                                            '-' + instrument,
+            for option, value in conf.items(platform_name + '-' + instrument,
                                             raw=True):
                 options[option] = value
 
@@ -110,7 +106,7 @@ class Calculator(RadTbConverter):
 
         if 'tb2rad_lut_filename' in options:
             self.lutfile = options['tb2rad_lut_filename']
-            LOG.info("lut filename: " + str(self.lutfile))
+            LOG.info("lut filename: ", str(self.lutfile))
             if not os.path.exists(self.lutfile):
                 self.lut = self.make_tb2rad_lut(self.bandname,
                                                 self.lutfile)
@@ -119,7 +115,7 @@ class Calculator(RadTbConverter):
                 self.lut = self.read_tb2rad_lut(self.lutfile)
                 LOG.info("File was there and has been read!")
         else:
-            LOG.info("No lut filename available in config file. " +
+            LOG.info("No lut filename available in config file. "
                      "No lut will be used")
             self.lutfile = None
             self.lut = None
@@ -139,11 +135,12 @@ class Calculator(RadTbConverter):
     def _get_solarflux(self):
         """Derive the in-band solar flux from rsr over the Near IR band (3.7 or
         3.9 microns)"""
-        solar_spectrum = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
-                                                 dlambda=0.0005,
-                                                 wavespace=self.wavespace)
-        self.solar_flux = solar_spectrum.inband_solarflux(
-            self.rsr[self.bandname])
+        solar_spectrum = \
+            SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
+                                    dlambda=0.0005,
+                                    wavespace=self.wavespace)
+        self.solar_flux = \
+            solar_spectrum.inband_solarflux(self.rsr[self.bandname])
 
     def reflectance_from_tbs(self, sun_zenith, tb_near_ir, tb_thermal,
                              tb_ir_co2=None):
@@ -177,8 +174,8 @@ class Calculator(RadTbConverter):
             tb_therm = np.array(tb_thermal)
 
         if tb_therm.shape != tb_nir.shape:
-            raise ValueError('Dimensions does not match!' +
-                             str(tb_therm.shape) + ' and ' + str(tb_nir.shape))
+            raise ValueError('Dimensions do not match! %s and %s' % \
+                             (str(tb_therm.shape), str(tb_nir.shape)))
 
         if tb_ir_co2 is None:
             co2corr = False
@@ -195,11 +192,11 @@ class Calculator(RadTbConverter):
         elif self.instrument == 'modis':
             ch37name = '20'
         else:
-            raise NotImplementedError('Not yet support for this ' +
-                                      'instrument ' + str(self.instrument))
+            raise NotImplementedError('Not yet support for this '
+                                      'instrument %s' % str(self.instrument))
 
         if not self.rsr:
-            raise NotImplementedError("Reflectance calculations without " +
+            raise NotImplementedError("Reflectance calculations without "
                                       "rsr not yet supported!")
             # retv = self.tb2radiance_simple(tb_therm, ch37name)
             # print("tb2radiance_simple conversion: " + str(retv))
@@ -219,9 +216,9 @@ class Calculator(RadTbConverter):
             l_nir = retv['radiance'] * scale
 
         if thermal_emiss_one.ravel().shape[0] < 10:
-            LOG.info('thermal_emiss_one = ' + str(thermal_emiss_one))
+            LOG.info('thermal_emiss_one = %s', str(thermal_emiss_one))
         if l_nir.ravel().shape[0] < 10:
-            LOG.info('l_nir = ' + str(l_nir))
+            LOG.info('l_nir = %s', str(l_nir))
 
         sunz = np.ma.masked_outside(sun_zenith, 0.0, 88.0)
         sunzmask = sunz.mask
@@ -241,7 +238,7 @@ class Calculator(RadTbConverter):
         # mask = thermal_emiss_one > l_nir
 
         nomin = l_nir - thermal_emiss_one * self._rad39_correction
-        LOG.debug("Shapes: " + str(mu0.shape) + "  " +
+        LOG.debug("Shapes: %s  %s", str(mu0.shape),
                   str(thermal_emiss_one.shape))
         denom = self._solar_radiance - \
             thermal_emiss_one * self._rad39_correction

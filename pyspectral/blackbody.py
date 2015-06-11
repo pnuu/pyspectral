@@ -134,13 +134,14 @@ def blackbody(wavel, temp):
     try:
         exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
     except MemoryError:
-        LOG.warning(("Dimensions used in numpy.multiply probably reached limit!\n" + 
-                     " Make sure the Radiance<->Tb table has been created and " + 
-                     "try run again"))
+        LOG.warning(("Dimensions used in numpy.multiply probably reached "
+                     "limit!\n"
+                     "Make sure the Radiance<->Tb table has been created "
+                     "and try running again"))
         raise
 
-    LOG.debug("Max and min before exp: " + str(exp_arg.max()) +
-              ' ' + str(exp_arg.min()))
+    LOG.debug("Max and min before exp: %s %s", str(exp_arg.max()),
+              str(exp_arg.min()))
 
     denom = np.exp(exp_arg) - 1
 

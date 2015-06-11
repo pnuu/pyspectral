@@ -25,6 +25,7 @@ Module to read solar irradiance spectra and calculate the solar flux over
 various instrument bands given their relative spectral response functions
 """
 
+import numpy as np
 import logging
 LOG = logging.getLogger(__name__)
 
@@ -100,13 +101,11 @@ class SolarIrradianceSpectrum(object):
 
     def _load(self):
         """Read the tabulated spectral irradiance data from file"""
-        import numpy as np
-        self.wavelength, self.irradiance = np.genfromtxt(
-            self.filename, unpack=True)
+        self.wavelength, self.irradiance = \
+            np.genfromtxt(self.filename, unpack=True)
 
     def solar_constant(self):
         """Calculate the solar constant"""
-        import numpy as np
         if self.wavenumber != None:
             return np.trapz(self.irradiance, self.wavenumber)
         elif self.wavelength != None:
@@ -137,7 +136,6 @@ class SolarIrradianceSpectrum(object):
         detector: Detector number (between 1 and N - N=number of detectors
         for channel)
         """
-        import numpy as np
         from scipy.interpolate import InterpolatedUnivariateSpline
 
         if 'detector' in options:
@@ -164,7 +162,7 @@ class SolarIrradianceSpectrum(object):
         start = wvl[0]
         end = wvl[-1]
         # print "Start and end: ", start, end
-        LOG.debug("Begin and end wavelength/wavenumber: %f %f " % (start, end))
+        LOG.debug("Begin and end wavelength/wavenumber: %f %f ", start, end)
         dlambda = self._dlambda
         xspl = np.linspace(start, end, (end - start) / dlambda)
 
@@ -202,7 +200,7 @@ class SolarIrradianceSpectrum(object):
         space, defining where to integrate/convolute the spectral response
         curve on the spectral irradiance data.
         """
-        from numpy import linspace
+
         from scipy.interpolate import InterpolatedUnivariateSpline
 
         # The user defined wavelength span is not yet used:
@@ -225,7 +223,7 @@ class SolarIrradianceSpectrum(object):
         else:
             start, end = ival_wavelength
 
-        xspl = linspace(start, end, (end - start) / self._dlambda)
+        xspl = np.linspace(start, end, (end - start) / self._dlambda)
         if self.wavespace == 'wavelength':
             ius = InterpolatedUnivariateSpline(
                 self.wavelength, self.irradiance)

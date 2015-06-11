@@ -50,7 +50,7 @@ if __name__ == '__main__':
     LOG = logging.getLogger('example')
 
 
-    modis = RelativeSpectralResponse('eos', 2, 'modis')
+    modis = RelativeSpectralResponse('EOS-Aqua', 'modis')
     modis.read(channel='20', scale=0.001)
 
     solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     REFL = refl37.reflectance_from_tbs(SUNZ, TB3, TB4)
     print REFL
 
-    refl37.make_tb2rad_lut('./modis_aqua_band20_tb2rad_lut.npz')
+    refl37.make_tb2rad_lut('./modis_EOS-Aqua_band20_tb2rad_lut.npz')
 
     # import matplotlib.pyplot as plt
 

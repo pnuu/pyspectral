@@ -49,30 +49,30 @@ TB_MAX = 360.
 # Units are cm-1 for the channel/band central wavenumber, K for the beta
 # parameter, and the alpha parameter is dimensionless:
 #
-SEVIRI = {'IR3.9': {'8': [2567.330, 0.9956, 3.410],
-                    '9': [2568.832, 0.9954, 3.438],
-                    '10': [],
+SEVIRI = {'IR3.9': {'Meteosat-8': [2567.330, 0.9956, 3.410],
+                    'Meteosat-9': [2568.832, 0.9954, 3.438],
+                    'Meteosat-10': [],
                     },
-          'WV6.2': {'8': [1598.103, 0.9962, 2.218],
-                    '9': [1600.548, 0.9963, 2.185],
+          'WV6.2': {'Meteosat-8': [1598.103, 0.9962, 2.218],
+                    'Meteosat-9': [1600.548, 0.9963, 2.185],
                     },
-          'WV7.3': {'8': [1362.081, 0.9991, 0.478],
-                    '9': [1360.330, 0.9991, 0.470],
+          'WV7.3': {'Meteosat-8': [1362.081, 0.9991, 0.478],
+                    'Meteosat-9': [1360.330, 0.9991, 0.470],
                     },
-          'IR8.7': {'8': [1149.069, 0.9996, 0.179],
-                    '9': [1148.620, 0.9996, 0.179],
+          'IR8.7': {'Meteosat-8': [1149.069, 0.9996, 0.179],
+                    'Meteosat-9': [1148.620, 0.9996, 0.179],
                     },
-          'IR9.7': {'8': [1034.343, 0.9999, 0.060],
-                    '9': [1035.289, 0.9999, 0.056],
+          'IR9.7': {'Meteosat-8': [1034.343, 0.9999, 0.060],
+                    'Meteosat-9': [1035.289, 0.9999, 0.056],
                     },
-          'IR10.8': {'8': [930.647, 0.9983, 0.625],
-                     '9': [931.700, 0.9983, 0.640],
+          'IR10.8': {'Meteosat-8': [930.647, 0.9983, 0.625],
+                     'Meteosat-9': [931.700, 0.9983, 0.640],
                      },
-          'IR12.0': {'8': [839.660, 0.9988, 0.397],
-                     '9': [836.445, 0.9988, 0.408],
+          'IR12.0': {'Meteosat-8': [839.660, 0.9988, 0.397],
+                     'Meteosat-9': [836.445, 0.9988, 0.408],
                      },
-          'IR13.4': {'8': [752.387, 0.9981, 0.578],
-                     '9': [751.792, 0.9981, 0.561],
+          'IR13.4': {'Meteosat-8': [752.387, 0.9981, 0.578],
+                     'Meteosat-9': [751.792, 0.9981, 0.561],
                      },
           }
 
@@ -91,15 +91,13 @@ class RadTbConverter(object):
       2: non-linear approximation using tabulated coefficients 
     """
 
-    def __init__(self, platform, satnum, instrument, bandname, method=1,
+    def __init__(self, platform_name, instrument, bandname, method=1,
                  **options):
         """E.g.:
-           platform = 'meteosat'
-           satnum = '9'
+           platform_name = 'Meteosat-9'
            instrument = 'seviri'
         """
-        self.platform = platform
-        self.satnumber = satnum
+        self.platform_name = platform_name
         self.instrument = instrument
         self.rsr = None
         self.bandname = BANDNAMES.get(bandname, bandname)
@@ -135,9 +133,9 @@ class RadTbConverter(object):
         from pyspectral.utils import convert2wavenumber
         from pyspectral.rsr_reader import RelativeSpectralResponse
 
-        sensor = RelativeSpectralResponse(self.platform, self.satnumber,
+        sensor = RelativeSpectralResponse(self.platform_name,
                                           self.instrument)
-        LOG.debug("Wavenumber? " + str(self.wavespace))
+        LOG.debug("Wavenumber? %s", str(self.wavespace))
         if self.wavespace == WAVE_NUMBER:
             LOG.debug("Converting to wavenumber...")
             self.rsr, info = convert2wavenumber(sensor.rsr)
@@ -152,11 +150,11 @@ class RadTbConverter(object):
         """Get the satellite name used in the rsr-reader, from the platform and
         number"""
 
-        if self.platform == "meteosat":
-            return 'met%d' % int(self.satnumber)
+        if self.platform_name.startswith("Meteosat"):
+            return self.platform_name
         else:
-            raise NotImplementedError('Platform ' + str(self.platform) +
-                                      ' not yet supported...')
+            raise NotImplementedError('Platform %s not yet supported...' % \
+                                      str(self.platform_name))
 
     def tb2radiance(self, tb_, bandname, lut=None):
         """Get the radiance from the brightness temperature (Tb) given the
@@ -195,9 +193,9 @@ class RadTbConverter(object):
             resp = self.rsr[bandname][self.detector]['response']
             planck = blackbody_wn(wv_, tb_) * resp
         else:
-            raise NotImplementedError(str(self.wavespace) +
-                                      ' representation of ' +
-                                      'rsr data not supported!')
+            raise NotImplementedError('%s representation of '
+                                      'rsr data not supported!' % \
+                                      str(self.wavespace))
 
         radiance = integrate.trapz(planck, wv_) / np.trapz(resp, wv_)
 
@@ -232,11 +230,11 @@ class RadTbConverter(object):
         c_1 = 2 * H_PLANCK * C_SPEED ** 2
         c_2 = H_PLANCK * C_SPEED / K_BOLTZMANN
 
-        vc_ = SEVIRI[bandname][self.satnumber][0]
+        vc_ = SEVIRI[bandname][self.platform_name][0]
         # Multiply by 100 to get SI units!
         vc_ *= 100.0
-        alpha = SEVIRI[bandname][self.satnumber][1]
-        beta = SEVIRI[bandname][self.satnumber][2]
+        alpha = SEVIRI[bandname][self.platform_name][1]
+        beta = SEVIRI[bandname][self.platform_name][2]
 
         radiance = c_1 * vc_ ** 3 / \
             (np.exp(c_2 * vc_ / (alpha * tb_ + beta)) - 1)
@@ -264,11 +262,11 @@ class RadTbConverter(object):
         c_1 = 2 * H_PLANCK * C_SPEED ** 2
         c_2 = H_PLANCK * C_SPEED / K_BOLTZMANN
 
-        vc_ = SEVIRI[bandname][self.satnumber][0]
+        vc_ = SEVIRI[bandname][self.platform_name][0]
         # Multiply by 100 to get SI units!
         vc_ *= 100.0
-        alpha = SEVIRI[bandname][self.satnumber][1]
-        beta = SEVIRI[bandname][self.satnumber][2]
+        alpha = SEVIRI[bandname][self.platform_name][1]
+        beta = SEVIRI[bandname][self.platform_name][2]
 
         tb_ = c_2 * vc_ / \
             (alpha * np.log(c_1 * vc_ ** 3 / rad + 1)) - beta / alpha

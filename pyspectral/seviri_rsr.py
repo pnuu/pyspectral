@@ -43,13 +43,6 @@ if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
 from xlrd import open_workbook
 import numpy as np
 
-METEOSAT_SAT = {'meteosat10': 'met10',
-                'meteosat9': 'met9',
-                'meteosat8': 'met8',
-                'meteosat11': 'met11',
-                }
-
-
 class Seviri(object):
 
     def __init__(self, wavespace='wavelength'):
@@ -115,10 +108,10 @@ class Seviri(object):
             sheet_names.append(sheet.name.strip())
 
             self.rsr[ch_name] = {'wavelength': None,
-                                 'met8': None,
-                                 'met9': None,
-                                 'met10': None,
-                                 'met11': None}
+                                 'Meteosat-8': None,
+                                 'Meteosat-9': None,
+                                 'Meteosat-10': None,
+                                 'Meteosat-11': None}
 
             if ch_name.startswith('HRV'):
                 wvl = np.array(
@@ -132,10 +125,10 @@ class Seviri(object):
                     sheet.col_values(5, start_rowx=37, end_rowx=137))
                 met11 = np.array(
                     sheet.col_values(6, start_rowx=37, end_rowx=137))
-                self.rsr[ch_name]['met8'] = met8
-                self.rsr[ch_name]['met9'] = met9
-                self.rsr[ch_name]['met10'] = met10
-                self.rsr[ch_name]['met11'] = met11
+                self.rsr[ch_name]['Meteosat-8'] = met8
+                self.rsr[ch_name]['Meteosat-9'] = met9
+                self.rsr[ch_name]['Meteosat-10'] = met10
+                self.rsr[ch_name]['Meteosat-11'] = met11
             elif ch_name.startswith('IR'):
                 wvl = np.array(
                     sheet.col_values(0, start_rowx=13, end_rowx=113))
@@ -155,10 +148,14 @@ class Seviri(object):
                     sheet.col_values(6, start_rowx=13, end_rowx=113))
                 met11_85 = np.array(
                     sheet.col_values(8, start_rowx=13, end_rowx=113))
-                self.rsr[ch_name]['met8'] = {'95': met8_95, '85': met8_85}
-                self.rsr[ch_name]['met9'] = {'95': met9_95, '85': met9_85}
-                self.rsr[ch_name]['met10'] = {'95': met10_95, '85': met10_85}
-                self.rsr[ch_name]['met11'] = {'95': met11_95, '85': met11_85}
+                self.rsr[ch_name]['Meteosat-8'] = {'95': met8_95,
+                                                   '85': met8_85}
+                self.rsr[ch_name]['Meteosat-9'] = {'95': met9_95,
+                                                   '85': met9_85}
+                self.rsr[ch_name]['Meteostat-10'] = {'95': met10_95,
+                                                     '85': met10_85}
+                self.rsr[ch_name]['Meteosat-11'] = {'95': met11_95,
+                                                    '85': met11_85}
             else:
                 wvl = np.array(
                     sheet.col_values(0, start_rowx=12, end_rowx=112))
@@ -170,10 +167,10 @@ class Seviri(object):
                     sheet.col_values(3, start_rowx=12, end_rowx=112))
                 met11 = np.array(
                     sheet.col_values(4, start_rowx=12, end_rowx=112))
-                self.rsr[ch_name]['met8'] = met8
-                self.rsr[ch_name]['met9'] = met9
-                self.rsr[ch_name]['met10'] = met10
-                self.rsr[ch_name]['met11'] = met11
+                self.rsr[ch_name]['Meteosat-8'] = met8
+                self.rsr[ch_name]['Meteosat-9'] = met9
+                self.rsr[ch_name]['Meteosat-10'] = met10
+                self.rsr[ch_name]['Meteosat-11'] = met11
 
             self.rsr[ch_name]['wavelength'] = wvl
 
@@ -233,30 +230,29 @@ def get_central_wave(wavl, resp):
     return np.trapz(resp * wavl, wavl) / np.trapz(resp, wavl)
 
 
-def generate_seviri_file(seviri, platform_id, sat_number):
+def generate_seviri_file(seviri, platform_name):
     """Generate the pyspectral internal common format relative response
     function file for one SEVIRI"""
 
     filename = os.path.join(sevObj.output_dir,
-                            "rsr_seviri_%s%.2d.h5" % (platform_id, sat_number))
+                            "rsr_seviri_%s%.2d.h5" % platform_name)
 
-    sat_name = METEOSAT_SAT['%s%d' % (platform_id, sat_number)]
+    sat_name = METEOSAT_SAT['%s%d' % platform_name]
     with h5py.File(filename, "w") as h5f:
 
         h5f.attrs['description'] = 'Relative Spectral Responses for SEVIRI'
-        h5f.attrs['platform'] = platform_id
-        h5f.attrs['sat_number'] = sat_number
+        h5f.attrs['platform_name'] = platform_name
         bandlist = [str(key) for key in seviri.rsr.keys()]
         h5f.attrs['band_names'] = bandlist
 
         for key in seviri.rsr.keys():
             grp = h5f.create_group(key)
             if isinstance(seviri.central_wavelength[key][sat_name], dict):
-                grp.attrs['central_wavelength'] = seviri.central_wavelength[
-                    key][sat_name]['95']
+                grp.attrs['central_wavelength'] = \
+                    seviri.central_wavelength[key][sat_name]['95']
             else:
-                grp.attrs['central_wavelength'] = seviri.central_wavelength[
-                    key][sat_name]
+                grp.attrs['central_wavelength'] = \
+                    seviri.central_wavelength[key][sat_name]
             arr = seviri.rsr[key]['wavelength']
             dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
             dset.attrs['unit'] = 'm'
@@ -276,5 +272,5 @@ if __name__ == "__main__":
 
     import h5py
     for satnum in [8, 9, 10, 11]:
-        generate_seviri_file(sevObj, 'meteosat', satnum)
-        print "meteosat%d done..." % satnum
+        generate_seviri_file(sevObj, 'Meteosat-%d' % satnum)
+        print "Meteosat-%d done..." % satnum

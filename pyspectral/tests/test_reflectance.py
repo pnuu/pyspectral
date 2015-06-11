@@ -85,11 +85,11 @@ class ProductionClassWN(Calculator):
 
     """Wrapper for wavenumber calculations..."""
 
-    def __init__(self, platform, satnum, instrument, bandname,
+    def __init__(self, platform_name, instrument, bandname,
                  solar_flux=None, **options):
         self.wavespace = 'wavenumber'
         self.get_rsr()
-        super(ProductionClassWN, self).__init__(platform, satnum, instrument,
+        super(ProductionClassWN, self).__init__(platform_name, instrument,
                                                 bandname, solar_flux=None,
                                                 **options)
 
@@ -111,25 +111,25 @@ class TestReflectance(unittest.TestCase):
         function. 
         """
 
-        refl37 = ProductionClass('eos', '2', 'modis', '20')
+        refl37 = ProductionClass('EOS-Aqua', 'modis', '20')
         expected = 0.18563451
         self.assertAlmostEqual(refl37.rsr_integral, expected)
 
         refl37 = ProductionClassWN(
-            'eos', '2', 'modis', '20', wavespace='wavenumber')
+            'EOS-Aqua', 'modis', '20', wavespace='wavenumber')
         expected = 130.0039
         self.assertAlmostEqual(refl37.rsr_integral, expected, 4)
 
     def test_reflectance(self):
         """Test the derivation of the reflective part of a 3.7 micron band"""
 
-        refl37 = ProductionClass('eos', '2', 'modis', '20')
+        refl37 = ProductionClass('EOS-Aqua', 'modis', '20')
 
         SUNZ = 80.
         TB3 = 290.
         TB4 = 282.
         REFL = refl37.reflectance_from_tbs(SUNZ, TB3, TB4)
-        self.assertAlmostEqual(REFL, 0.251245010648)
+        self.assertAlmostEqual(REFL, 0.25124494860154067) #0.251245010648)
 
         SUNZ = 80.
         TB3 = 295.

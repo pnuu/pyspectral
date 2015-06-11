@@ -35,11 +35,9 @@ BANDNAMES = {'VIS006': 'VIS0.6',
              'IR_120': 'IR12.0',
              'IR_134': 'IR13.4',
              'HRV': 'HRV'
-             }
-
+}
 
 import numpy as np
-
 
 def convert2wavenumber(rsr):
     """Take rsr data set with all channels and detectors for an instrument each
@@ -71,6 +69,7 @@ def convert2wavenumber(rsr):
 
     unit = 'cm-1'
     si_scale = 100.0
+
     return retv, {'unit': unit, 'si_scale': si_scale}
 
 
@@ -89,6 +88,7 @@ def get_central_wave(wav, resp):
     # if info['unit'].find('-1') > 0:
     # Wavenumber:
     #     res *=
+
     return np.trapz(resp * wav, wav) / np.trapz(resp, wav)
 
 

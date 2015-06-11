@@ -59,10 +59,10 @@ class ViirsRSR(object):
 
     """Container for the (S-NPP) VIIRS RSR data"""
 
-    def __init__(self, bandname, satname='npp'):
+    def __init__(self, bandname, platform_name='Suomi-NPP'):
         """
         """
-        self.satname = satname
+        self.platform_name = platform_name
         self.bandname = bandname
         self.filename = None
         self.rsr = None
@@ -71,7 +71,7 @@ class ViirsRSR(object):
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: ' +
+            LOG.exception('Failed reading configuration file: ',
                           str(CONFIG_FILE))
             raise
 
@@ -85,7 +85,7 @@ class ViirsRSR(object):
         self.output_dir = options.get('rsr_dir', './')
 
         self._get_bandfile(**options)
-        LOG.debug("Filename: " + str(self.filename))
+        LOG.debug("Filename: ", str(self.filename))
         self._load()
 
     def _get_bandfile(self, **options):
@@ -113,8 +113,8 @@ class ViirsRSR(object):
                   options["dnb_name"] % values
                   ]
 
-        LOG.debug("paths = " + str(paths))
-        LOG.debug("fnames = " + str(fnames))
+        LOG.debug("paths = ", str(paths))
+        LOG.debug("fnames = ", str(fnames))
 
         for path, fname in zip(paths, fnames):
             band_file = os.path.join(path, fname)
@@ -172,10 +172,10 @@ class ViirsRSR(object):
         detectors = {}
         for idx in range(int(max(det))):
             detectors["det-%d" % (idx + 1)] = {}
-            detectors[
-                "det-%d" % (idx + 1)]['wavelength'] = np.repeat(wavelength, np.equal(det, idx + 1))
-            detectors[
-                "det-%d" % (idx + 1)]['response'] = np.repeat(response, np.equal(det, idx + 1))
+            detectors["det-%d" % (idx + 1)]['wavelength'] = \
+                np.repeat(wavelength, np.equal(det, idx + 1))
+            detectors["det-%d" % (idx + 1)]['response'] = \
+                np.repeat(response, np.equal(det, idx + 1))
 
         self.rsr = detectors
 
@@ -195,15 +195,14 @@ if __name__ == "__main__":
 
     import h5py
 
-    platform_id = "npp"
-    viirs = ViirsRSR('M1', 'npp')
+    platform_name = "Suomi-NPP"
+    viirs = ViirsRSR('M1', 'Suomi-NPP')
     filename = os.path.join(viirs.output_dir,
-                            "rsr_viirs_%s.h5" % platform_id)
+                            "rsr_viirs_%s.h5" % platform_name)
 
     with h5py.File(filename, "w") as h5f:
         h5f.attrs['description'] = 'Relative Spectral Responses for VIIRS'
-        h5f.attrs['platform'] = platform_id
-        h5f.attrs['sat_number'] = np.nan
+        h5f.attrs['platform_name'] = platform_name
         h5f.attrs['band_names'] = VIIRS_BAND_NAMES
 
         for chname in VIIRS_BAND_NAMES:
