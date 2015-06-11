@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 # -*- coding: utf-8 -*-
 
 # Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
@@ -27,10 +28,10 @@ various instrument bands given their relative spectral response functions
 """
 
 import numpy as np
+from pkg_resources import resource_filename
+
 import logging
 LOG = logging.getLogger(__name__)
-
-from pkg_resources import resource_filename
 
 # STANDARD SPECTRA from Air Mass Zero: http://rredc.nrel.gov/solar/spectra/am0/
 #    * 2000 ASTM Standard Extraterrestrial Spectrum Reference E-490-00
@@ -38,9 +39,7 @@ from pkg_resources import resource_filename
 TOTAL_IRRADIANCE_SPECTRUM_2000ASTM = resource_filename(__name__,
                                                        'data/e490_00a.dat')
 
-
 class SolarIrradianceSpectrum(object):
-
     """Total Top of Atmosphere (TOA) Solar Irradiance Spectrum
     Wavelength is in units of microns (10^-6 m).
     The spectral Irradiance in the file TOTAL_IRRADIANCE_SPECTRUM_2000ASTM is
@@ -94,7 +93,6 @@ class SolarIrradianceSpectrum(object):
           Wavelength: micro meters (1e-6 m)
           Wavenumber: cm-1
         """
-
         self.wavenumber = 1. / (1e-4 * self.wavelength[::-1])
         self.irradiance = (self.irradiance[::-1] *
                            self.wavelength[::-1] * self.wavelength[::-1] * 0.1)
@@ -107,17 +105,17 @@ class SolarIrradianceSpectrum(object):
 
     def solar_constant(self):
         """Calculate the solar constant"""
-        if self.wavenumber != None:
+        if self.wavenumber is not None:
             return np.trapz(self.irradiance, self.wavenumber)
-        elif self.wavelength != None:
+        elif self.wavelength is not None:
             return np.trapz(self.irradiance, self.wavelength)
         else:
             raise TypeError('Neither wavelengths nor wavenumbers available!')
 
     def inband_solarflux(self, rsr, scale=1.0, **options):
         """Derive the inband solar flux for a given instrument relative
-        spectral response valid for an earth-sun distance of one AU."""
-
+        spectral response valid for an earth-sun distance of one AU.
+        """
         return self._band_calculations(rsr, True, scale, **options)
 
     # def inband_solarirradiance(self, rsr, scale=1.0, **options):
@@ -201,7 +199,6 @@ class SolarIrradianceSpectrum(object):
         space, defining where to integrate/convolute the spectral response
         curve on the spectral irradiance data.
         """
-
         from scipy.interpolate import InterpolatedUnivariateSpline
 
         # The user defined wavelength span is not yet used:
@@ -214,7 +211,7 @@ class SolarIrradianceSpectrum(object):
         if 'dlambda' in options:
             self._dlambda = options['dlambda']
 
-        if ival_wavelength == None:
+        if ival_wavelength is None:
             if self.wavespace == 'wavelength':
                 start = self.wavelength[0]
                 end = self.wavelength[-1]
@@ -244,8 +241,8 @@ class SolarIrradianceSpectrum(object):
             color = 'blue'
 
         if self.wavespace == "wavelength":
-            xlabel = "Wavelength ($\mu m$)"
-            ylabel = "Irradiance ($W/(m^2 \mu m$))"
+            xlabel = r"Wavelength ($\mu m$)"
+            ylabel = r"Irradiance ($W/(m^2 \mu m$))"
             xlim = [0, 4.2]
             xwl, yir = self.wavelength, self.irradiance
         elif self.wavespace == "wavenumber":
@@ -264,17 +261,17 @@ class SolarIrradianceSpectrum(object):
         fig = pylab.figure(figsize=(8, 4))
         plot_title = "Solar Irradiance Spectrum"
         pylab.title(plot_title)
-        ax = fig.add_subplot(111)
+        axl = fig.add_subplot(111)
 
-        ax.plot(xwl, yir, '-', color=color)
+        axl.plot(xwl, yir, '-', color=color)
 
         pylab.xlabel(xlabel)
         pylab.ylabel(ylabel)
         pylab.xlim(xlim)
         pylab.ylim([0, yir.max()])
-        ax.grid(True)
+        axl.grid(True)
 
-        if plotname == None:
+        if plotname is None:
             pylab.show()
         else:
             fig.savefig(plotname)

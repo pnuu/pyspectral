@@ -21,11 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Read the Terra/Aqua MODIS relative spectral response functions.
-"""
-
-import logging
-LOG = logging.getLogger(__name__)
+"""Read the Terra/Aqua MODIS relative spectral response functions."""
 
 import ConfigParser
 import os
@@ -33,6 +29,9 @@ import numpy as np
 
 from pyspectral.utils import sort_data
 from pyspectral.utils import get_central_wave
+
+import logging
+LOG = logging.getLogger(__name__)
 
 try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
@@ -96,7 +95,6 @@ class ModisRSR(object):
 
     def _get_bandfilenames(self, **options):
         """Get the MODIS rsr filenames"""
-
         path = options["path"]
 
         for band in MODIS_BAND_NAMES:
@@ -114,9 +112,7 @@ class ModisRSR(object):
             self.filenames[band] = filename
 
     def _load(self):
-        """Load the MODIS RSR data for the band requested
-        """
-
+        """Load the MODIS RSR data for the band requested"""
         if self.is_sw or self.platform_name == 'EOS-Aqua':
             scale = 0.001
         else:
@@ -228,7 +224,10 @@ def convert2hdf5(platform_name):
                 dset[...] = arr
 
 
-if __name__ == "__main__":
-
+def main():
+    """Main"""
     for sat in ['EOS-Terra', 'EOS-Aqua']:
         convert2hdf5(sat)
+
+if __name__ == "__main__":
+    main()

@@ -21,13 +21,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Main module
-"""
+"""Main module"""
 
-
-import version
-
-__version__ = version.__version__
-
+from pyspectral.version import __version__
 import logging
+
 LOG = logging.getLogger(__name__)

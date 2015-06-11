@@ -25,11 +25,12 @@
 various satellite sensors
 """
 
-import logging
-LOG = logging.getLogger(__name__)
-
 import numpy as np
 from pyspectral.blackbody import blackbody, blackbody_wn
+from pyspectral.utils import BANDNAMES
+
+import logging
+LOG = logging.getLogger(__name__)
 
 WAVE_LENGTH = 'wavelength'
 WAVE_NUMBER = 'wavenumber'
@@ -77,8 +78,6 @@ SEVIRI = {'IR3.9': {'Meteosat-8': [2567.330, 0.9956, 3.410],
                      },
           }
 
-from pyspectral.utils import BANDNAMES
-
 
 class RadTbConverter(object):
 
@@ -95,8 +94,8 @@ class RadTbConverter(object):
     def __init__(self, platform_name, instrument, bandname, method=1,
                  **options):
         """E.g.:
-           platform_name = 'Meteosat-9'
-           instrument = 'seviri'
+        platform_name = 'Meteosat-9'
+        instrument = 'seviri'
         """
         self.platform_name = platform_name
         self.instrument = instrument
@@ -130,7 +129,6 @@ class RadTbConverter(object):
 
     def get_rsr(self):
         """Get all spectral responses for the sensor"""
-
         from pyspectral.utils import convert2wavenumber
         from pyspectral.rsr_reader import RelativeSpectralResponse
 
@@ -148,9 +146,9 @@ class RadTbConverter(object):
         self._wave_si_scale = info['si_scale']
 
     def _getsatname(self):
-        """Get the satellite name used in the rsr-reader, from the platform and
-        number"""
-
+        """Get the satellite name used in the rsr-reader, from the platform
+        and number
+        """
         if self.platform_name.startswith("Meteosat"):
             return self.platform_name
         else:
@@ -214,14 +212,13 @@ class RadTbConverter(object):
 
     def read_tb2rad_lut(self, filepath):
         """Read the Tb to radiance look-up table"""
-
         retv = np.load(filepath, 'r')
         return retv
 
     def tb2radiance_simple(self, tb_, bandname):
         """Get the radiance from the Tb using the simple non-linear regression
-        method. SI units of course!"""
-
+        method. SI units of course!
+        """
         # L = C1 * νc**3 / (exp (C2 νc / [αTb + β]) − 1)
         #
         # C1 = 2 * h * c**2 and C2 = hc/k

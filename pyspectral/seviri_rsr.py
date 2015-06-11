@@ -25,11 +25,13 @@
 satellites
 """
 
-import logging
-LOG = logging.getLogger(__name__)
-
 import ConfigParser
 import os
+from xlrd import open_workbook
+import numpy as np
+
+import logging
+LOG = logging.getLogger(__name__)
 
 try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
@@ -41,10 +43,9 @@ if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
-from xlrd import open_workbook
-import numpy as np
-
 class Seviri(object):
+
+    """Class for Seviri RSR"""
 
     def __init__(self, wavespace='wavelength'):
         """
@@ -55,7 +56,6 @@ class Seviri(object):
         default. Can be 'wavenumber' in which case the unit is in cm-1.
 
         """
-
         conf = ConfigParser.ConfigParser()
         try:
             conf.read(CONFIG_FILE)
@@ -94,15 +94,14 @@ class Seviri(object):
 
     def _load(self, filename=None):
         """Read the SEVIRI rsr data"""
-
         if not filename:
             filename = self.seviri_path
 
-        wb = open_workbook(filename)
+        wb_ = open_workbook(filename)
 
         self.rsr = {}
         sheet_names = []
-        for sheet in wb.sheets():
+        for sheet in wb_.sheets():
             if sheet.name in ['Info', 'Requirements']:
                 continue
             ch_name = sheet.name.strip()
@@ -177,7 +176,6 @@ class Seviri(object):
 
     def convert2wavenumber(self):
         """Convert from wavelengths to wavenumber"""
-
         for chname in self.rsr.keys():
             for sat in self.rsr[chname].keys():
                 if sat == "wavelength":
@@ -197,8 +195,8 @@ class Seviri(object):
 
     def get_centrals(self):
         """Get the central wavenumbers or central wavelengths of all channels,
-        depending on the given 'wavespace'"""
-
+        depending on the given 'wavespace'
+        """
         result = {}
         for chname in self.rsr.keys():
             result[chname] = {}
@@ -225,16 +223,16 @@ class Seviri(object):
 
 
 def get_central_wave(wavl, resp):
-    """Calculate the central wavelength or the central wavenumber, depending on
-    what is input"""
-
+    """Calculate the central wavelength or the central wavenumber,
+    depending on what is input
+    """
     return np.trapz(resp * wavl, wavl) / np.trapz(resp, wavl)
 
 
 def generate_seviri_file(seviri, platform_name):
     """Generate the pyspectral internal common format relative response
-    function file for one SEVIRI"""
-
+    function file for one SEVIRI
+    """
     filename = os.path.join(sevObj.output_dir,
                             "rsr_seviri_%s%.2d.h5" % platform_name)
 
@@ -268,10 +266,15 @@ def generate_seviri_file(seviri, platform_name):
 
     return
 
-if __name__ == "__main__":
+def main():
+    """Main"""
     sevObj = Seviri()
 
     import h5py
     for satnum in [8, 9, 10, 11]:
         generate_seviri_file(sevObj, 'Meteosat-%d' % satnum)
         print "Meteosat-%d done..." % satnum
+
+if __name__ == "__main__":
+    main()
+

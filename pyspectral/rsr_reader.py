@@ -21,17 +21,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Reading the spectral responses in the internal pyspectral hdf5 format
-"""
-
-import logging
-LOG = logging.getLogger(__name__)
+"""Reading the spectral responses in the internal pyspectral hdf5 format"""
 
 import ConfigParser
 import os
 import numpy as np
 from glob import glob
+
+import logging
+LOG = logging.getLogger(__name__)
 
 try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
@@ -42,7 +40,6 @@ except KeyError:
 if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
-
 
 class RelativeSpectralResponse(object):
 
@@ -91,7 +88,6 @@ class RelativeSpectralResponse(object):
     def load(self):
         """Read the internally formatet hdf5 relative spectral response data
         """
-
         import h5py
 
         with h5py.File(self.filename, 'r') as h5f:
@@ -138,8 +134,10 @@ class RelativeSpectralResponse(object):
             intg[det] = np.trapz(resp, wvl)
         return intg
 
+def main():
+    """Main"""
+    modis = RelativeSpectralResponse('EOS-Terra', 'modis')
 
 if __name__ == "__main__":
-    # test
+    main()
 
-    modis = RelativeSpectralResponse('EOS-Terra', 'modis')

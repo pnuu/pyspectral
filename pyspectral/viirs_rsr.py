@@ -21,14 +21,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Interface to VIIRS relative spectral responses
-"""
-
-import logging
-LOG = logging.getLogger(__name__)
+"""Interface to VIIRS relative spectral responses"""
 
 import ConfigParser
 import os
+import numpy as np
+from pyspectral.utils import get_central_wave
+
+import logging
+LOG = logging.getLogger(__name__)
 
 try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
@@ -39,9 +40,6 @@ except KeyError:
 if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
-
-import numpy as np
-from pyspectral.utils import get_central_wave
 
 VIIRS_BAND_NAMES = ['M1', 'M2', 'M3', 'M4', 'M5',
                     'M6', 'M7', 'M8', 'M9', 'M10',
@@ -55,14 +53,12 @@ _DEFAULT_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 #: Default log format
 _DEFAULT_LOG_FORMAT = '[%(levelname)s: %(asctime)s : %(name)s] %(message)s'
 
-
 class ViirsRSR(object):
 
     """Container for the (S-NPP) VIIRS RSR data"""
 
     def __init__(self, bandname, platform_name='Suomi-NPP'):
-        """
-        """
+        """Init"""
         self.platform_name = platform_name
         self.bandname = bandname
         self.filename = None
@@ -91,7 +87,6 @@ class ViirsRSR(object):
 
     def _get_bandfile(self, **options):
         """Get the VIIRS rsr filename"""
-
         band_file = None
 
         # Need to understand why there are A&B files for band M16. FIXME!
@@ -128,10 +123,7 @@ class ViirsRSR(object):
                           str(self.bandname))
 
     def _load(self, scale=0.001):
-        """Load the VIIRS RSR data for the band requested
-        """
-        import numpy as np
-
+        """Load the VIIRS RSR data for the band requested"""
         try:
             data = np.genfromtxt(self.filename,
                                  unpack=True, skip_header=1,
@@ -180,11 +172,11 @@ class ViirsRSR(object):
 
         self.rsr = detectors
 
-
-if __name__ == "__main__":
-
+def main():
+    """Main"""
     import sys
-    LOG = logging.getLogger('viirs_rsr')
+    import h5py
+
     handler = logging.StreamHandler(sys.stderr)
 
     formatter = logging.Formatter(fmt=_DEFAULT_LOG_FORMAT,
@@ -193,8 +185,6 @@ if __name__ == "__main__":
     handler.setLevel(logging.DEBUG)
     LOG.setLevel(logging.DEBUG)
     LOG.addHandler(handler)
-
-    import h5py
 
     platform_name = "Suomi-NPP"
     viirs = ViirsRSR('M1', 'Suomi-NPP')
@@ -246,3 +236,7 @@ if __name__ == "__main__":
                 arr = viirs.rsr[det]['response']
                 dset = det_grp.create_dataset('response', arr.shape, dtype='f')
                 dset[...] = arr
+
+if __name__ == "__main__":
+    LOG = logging.getLogger('viirs_rsr')
+    main()

@@ -21,13 +21,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Planck radiation equation
-"""
+"""Planck radiation equation"""
+
+import numpy as np
 
 import logging
 LOG = logging.getLogger(__name__)
-
-import numpy as np
 
 H_PLANCK = 6.62606957 * 1e-34  # SI-unit = [J*s]
 K_BOLTZMANN = 1.3806488 * 1e-23  # SI-unit = [J/K]
@@ -53,7 +52,6 @@ def blackbody_wn(wavenumber, temp):
             Converting from SI units to mW/m^2 sr^-1 (cm^-1)^-1:
             1.0 W/m^2 sr^-1 (m^-1)^-1 = 0.1 mW/m^2 sr^-1 (cm^-1)^-1
     """
-
     LOG.debug("Using wave numbers when calculating the Blackbody temp...")
     if np.isscalar(temp):
         temperature = np.array([temp, ], dtype='float64')
@@ -104,7 +102,6 @@ def blackbody(wavel, temp):
     Output: The spectral radiance per meter (not micron!)
             Unit = W/m^2 sr^-1 m^-1
     """
-
     LOG.debug("Using wavelengths when calculating the Blackbody temp...")
 
     if np.isscalar(temp):
