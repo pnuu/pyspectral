@@ -70,7 +70,7 @@ class ModisRSR(object):
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: ',
+            LOG.exception('Failed reading configuration file: %s',
                           str(CONFIG_FILE))
             raise
 
@@ -85,7 +85,7 @@ class ModisRSR(object):
         self.output_dir = options.get('rsr_dir', './')
 
         self._get_bandfilenames(**options)
-        LOG.debug("Filenames: ", str(self.filenames))
+        LOG.debug("Filenames: %s", str(self.filenames))
         if os.path.exists(self.filenames[bandname]):
             self.requested_band_filename = self.filenames[bandname]
             self._load()
@@ -100,7 +100,7 @@ class ModisRSR(object):
 
         for band in MODIS_BAND_NAMES:
             bnum = int(band)
-            LOG.debug("Band= ", str(band))
+            LOG.debug("Band = %s", str(band))
             if self.platform_name == 'EOS-Terra':
                 filename = os.path.join(path,
                                         "rsr.%d.inb.final" % (bnum))

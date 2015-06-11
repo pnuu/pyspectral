@@ -59,8 +59,8 @@ class Seviri(object):
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception(
-                'Failed reading configuration file: ' + str(CONFIG_FILE))
+            LOG.exception('Failed reading configuration file: %s',
+                          str(CONFIG_FILE))
             raise
 
         options = {}

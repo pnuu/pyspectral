@@ -65,8 +65,8 @@ class AvhrrRSR(object):
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception(
-                'Failed reading configuration file: ' + str(CONFIG_FILE))
+            LOG.exception('Failed reading configuration file: %s',
+                          str(CONFIG_FILE))
             raise
 
         options = {}
@@ -79,7 +79,7 @@ class AvhrrRSR(object):
         self.output_dir = options.get('rsr_dir', './')
 
         self._get_bandfilenames(**options)
-        LOG.debug("Filenames: " + str(self.filenames))
+        LOG.debug("Filenames: %s", str(self.filenames))
         if os.path.exists(self.filenames[bandname]):
             self.requested_band_filename = self.filenames[bandname]
             self._load()
@@ -95,11 +95,11 @@ class AvhrrRSR(object):
 
         path = options["path"]
         for band in AVHRR_BAND_NAMES:
-            LOG.debug("Band= " + str(band))
+            LOG.debug("Band = %s", str(band))
             self.filenames[band] = os.path.join(path, options[band])
             LOG.debug(self.filenames[band])
             if not os.path.exists(self.filenames[band]):
-                LOG.warning("Couldn't find an existing file for this band: " +
+                LOG.warning("Couldn't find an existing file for this band: %s",
                             str(self.filenames[band]))
 
     def _load(self, scale=1.0):

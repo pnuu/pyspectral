@@ -127,10 +127,8 @@ def blackbody(wavel, temp):
     arg2 = np.where(np.greater(np.abs(temperature), EPSILON),
                     np.array(1. / temperature), -9).reshape(-1, 1)
     arg2 = np.ma.masked_array(arg2, mask=arg2 == -9)
-    LOG.debug(
-        "Max and min - arg1: " + str(arg1.max()) + '   ' + str(arg1.min()))
-    LOG.debug(
-        "Max and min - arg2: " + str(arg2.max()) + '   ' + str(arg2.min()))
+    LOG.debug("Max and min - arg1: %s  %s", str(arg1.max()), str(arg1.min()))
+    LOG.debug("Max and min - arg2: %s  %s", str(arg2.max()), str(arg2.min()))
     try:
         exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
     except MemoryError:
@@ -140,7 +138,7 @@ def blackbody(wavel, temp):
                      "and try running again"))
         raise
 
-    LOG.debug("Max and min before exp: %s %s", str(exp_arg.max()),
+    LOG.debug("Max and min before exp: %s  %s", str(exp_arg.max()),
               str(exp_arg.min()))
 
     denom = np.exp(exp_arg) - 1

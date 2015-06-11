@@ -71,7 +71,7 @@ class ViirsRSR(object):
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: ',
+            LOG.exception('Failed reading configuration file: %s',
                           str(CONFIG_FILE))
             raise
 
@@ -85,7 +85,7 @@ class ViirsRSR(object):
         self.output_dir = options.get('rsr_dir', './')
 
         self._get_bandfile(**options)
-        LOG.debug("Filename: ", str(self.filename))
+        LOG.debug("Filename: %s", str(self.filename))
         self._load()
 
     def _get_bandfile(self, **options):
@@ -113,8 +113,8 @@ class ViirsRSR(object):
                   options["dnb_name"] % values
                   ]
 
-        LOG.debug("paths = ", str(paths))
-        LOG.debug("fnames = ", str(fnames))
+        LOG.debug("paths = %s", str(paths))
+        LOG.debug("fnames = %s", str(fnames))
 
         for path, fname in zip(paths, fnames):
             band_file = os.path.join(path, fname)

@@ -63,7 +63,7 @@ class RelativeSpectralResponse(object):
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: ' +
+            LOG.exception('Failed reading configuration file: %s',
                           str(CONFIG_FILE))
             raise
 
@@ -75,7 +75,7 @@ class RelativeSpectralResponse(object):
 
         self.filename = os.path.join(rsr_dir, 'rsr_%s_%s.h5' % (instrument,
                                                                 platform_name))
-        LOG.debug('Filename: ', str(self.filename))
+        LOG.debug('Filename: %s', str(self.filename))
 
         if not os.path.exists(self.filename):
             raise IOError('pyspectral RSR file does not exist! Filename = ' +

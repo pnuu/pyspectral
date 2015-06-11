@@ -78,7 +78,7 @@ class Calculator(RadTbConverter):
             try:
                 conf.read(CONFIG_FILE)
             except ConfigParser.NoSectionError:
-                LOG.warning('Failed reading configuration file: ',
+                LOG.warning('Failed reading configuration file: %s',
                             str(CONFIG_FILE))
 
             options = {}
@@ -106,7 +106,7 @@ class Calculator(RadTbConverter):
 
         if 'tb2rad_lut_filename' in options:
             self.lutfile = options['tb2rad_lut_filename']
-            LOG.info("lut filename: ", str(self.lutfile))
+            LOG.info("lut filename: %s", str(self.lutfile))
             if not os.path.exists(self.lutfile):
                 self.lut = self.make_tb2rad_lut(self.bandname,
                                                 self.lutfile)
